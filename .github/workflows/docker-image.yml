@@ -1,0 +1,38 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to DockerHub
+        run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login --username ${{ secrets.REGISTRY_USER }} --password-stdin
+
+      - name: Set Docker tag
+        id: vars
+        run: echo "GIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Build Docker image
+        run: |
+          docker build -f Dockerfile -t ${{ secrets.REGISTRY_USER }}/demo:latest .
+
+      - name: Tag image with Git SHA
+        run: |
+          docker tag ${{ secrets.REGISTRY_USER }}/demo:latest ${{ secrets.REGISTRY_USER }}/demo:${{ env.GIT_SHA }}
+
+      - name: Push Docker images to DockerHub
+        run: |
+          docker push ${{ secrets.REGISTRY_USER }}/demo:latest
+          docker push ${{ secrets.REGISTRY_USER }}/demo:${{ env.GIT_SHA }}
