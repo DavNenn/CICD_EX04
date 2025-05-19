@@ -22,7 +22,7 @@ jobs:
 
       - name: Set Docker tag
         id: vars
-        run: echo "GIT_SHA=$(git rev-parse --short HEAD)"
+        run: GIT_SHA=$(git rev-parse --short HEAD)
 
       - name: Build Docker image
         run: |
