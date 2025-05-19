@@ -22,7 +22,7 @@ jobs:
 
       - name: Set Docker tag
         id: vars
-        run: GIT_SHA=$(git rev-parse --short HEAD)
+        run: echo "GIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Build Docker image
         run: |
@@ -30,9 +30,9 @@ jobs:
 
       - name: Tag image with Git SHA
         run: |
-          docker tag ${{ secrets.REGISTRY_USER }}/demo:latest ${{ secrets.REGISTRY_USER }}/demo:$GIT_SHA
+          docker tag ${{ secrets.REGISTRY_USER }}/demo:latest ${{ secrets.REGISTRY_USER }}/demo:${{ env.GIT_SHA }}
 
       - name: Push Docker images to DockerHub
         run: |
           docker push ${{ secrets.REGISTRY_USER }}/demo:latest
-          docker push ${{ secrets.REGISTRY_USER }}/demo:$env.GIT_SHA
+          docker push ${{ secrets.REGISTRY_USER }}/demo:${{ env.GIT_SHA }}
